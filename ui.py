@@ -8,16 +8,23 @@ class TaskManagerApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("Task Manager")
-        self.geometry("1200x800")  # Wymiary okna
+        self.geometry("1200x800")
 
-        self.task_manager = TaskManager()  # Używamy TaskManager do zarządzania zadaniami
+        # Inicjalizacja TaskManager
+        self.task_manager = TaskManager()
+
+        # Ładujemy zadania z bazy danych
+        self.task_manager.load_tasks_from_db()
 
         self.category_var = ctk.StringVar(value="All")
         self.create_widgets()
 
         # Ustawienie proporcjonalnego skalowania
-        self.grid_rowconfigure(1, weight=10)  # Skaluje się w pionie, zadania zajmują większą część okna
-        self.grid_columnconfigure(0, weight=1)  # Skaluje się w poziomie
+        self.grid_rowconfigure(1, weight=10)
+        self.grid_columnconfigure(0, weight=1)
+
+        # Wywołanie update_task_list, aby odświeżyć listę zadań po załadowaniu z bazy
+        self.update_task_list()
 
     def create_widgets(self):
         # Główna ramka
@@ -54,8 +61,8 @@ class TaskManagerApp(ctk.CTk):
         dialog.grab_set()
         self.wait_window(dialog)
 
-        if dialog.task:  # Jeśli dodano zadanie, zapisujemy je
-            self.task_manager.add_task(dialog.task)
+        if dialog.task:  # Jeśli dodano zadanie
+            self.task_manager.add_task(dialog.task)  # Dodajemy zadanie przez TaskManager
             self.update_task_list()
 
     def open_deleted_tasks_dialog(self):
@@ -66,8 +73,7 @@ class TaskManagerApp(ctk.CTk):
         self.wait_window(dialog)
 
         if dialog.restored_task:
-            self.task_manager.restore_task(dialog.restored_task)
-            self.update_task_list()
+            self.update_task_list()  # Aktualizujemy listę zadań po przywróceniu
 
     def update_task_list(self):
         # Czyścimy stare zadania
@@ -86,8 +92,9 @@ class TaskManagerApp(ctk.CTk):
             task_title = ctk.CTkLabel(task_frame, text=task.title, font=("Arial", 16))
             task_title.pack(side="left", padx=10)
 
-            # Przycisk usunięcia zadania
+            # Przycisk usunięcia zadania (kolor czerwony)
             delete_button = ctk.CTkButton(task_frame, text="🗑", font=("Arial", 16), width=40, height=40,
+                                          fg_color="red",  # Ustawiamy kolor przycisku na czerwony
                                           command=lambda t=task: self.delete_task(t))
             delete_button.pack(side="right", padx=10)
 
