@@ -83,20 +83,57 @@ class TaskManagerApp(ctk.CTk):
         # Pobieramy zadania według kategorii
         tasks = self.task_manager.get_tasks_by_category(self.category_var.get())
 
-        # Wyświetlamy zadania
-        for task in tasks:
+        # Oddzielamy zadania ukończone od nieukończonych
+        not_completed_tasks = [task for task in tasks if not task.is_completed]
+        completed_tasks = [task for task in tasks if task.is_completed]
+
+        # Wyświetlamy niewykonane zadania
+        for task in not_completed_tasks:
             task_frame = ctk.CTkFrame(self.task_scroll_frame, corner_radius=10)
             task_frame.pack(fill="x", padx=10, pady=5, ipady=10)
 
-            # Wyświetlamy tytuł zadania
             task_title = ctk.CTkLabel(task_frame, text=task.title, font=("Arial", 16))
             task_title.pack(side="left", padx=10)
 
-            # Przycisk usunięcia zadania (kolor czerwony)
+            # Najpierw przycisk usunięcia zadania
             delete_button = ctk.CTkButton(task_frame, text="🗑", font=("Arial", 16), width=40, height=40,
-                                          fg_color="red",  # Ustawiamy kolor przycisku na czerwony
-                                          command=lambda t=task: self.delete_task(t))
+                                          fg_color="red", command=lambda t=task: self.delete_task(t))
             delete_button.pack(side="right", padx=10)
+
+            # Potem przycisk ukończenia zadania (⬛ -> ✔), z kolorem #262624
+            complete_button = ctk.CTkButton(task_frame, text="⬛", font=("Arial", 16), width=40, height=40,
+                                            fg_color="#262624",  # Kolor przycisku ukończenia
+                                            command=lambda t=task: self.toggle_task_completed(t))
+            complete_button.pack(side="right", padx=10)
+
+        # Dodajemy estetyczne oddzielenie ukończonych zadań
+        if completed_tasks:
+            separator = ctk.CTkLabel(self.task_scroll_frame, text="--- Ukończone zadania ---", font=("Arial", 12))
+            separator.pack(pady=10)
+
+        # Wyświetlamy ukończone zadania (z kolorem #30302f)
+        for task in completed_tasks:
+            task_frame = ctk.CTkFrame(self.task_scroll_frame, corner_radius=10,
+                                      fg_color="#30302f")  # Kolor ukończonego zadania
+            task_frame.pack(fill="x", padx=10, pady=5, ipady=10)
+
+            task_title = ctk.CTkLabel(task_frame, text=task.title, font=("Arial", 16), text_color="gray")
+            task_title.pack(side="left", padx=10)
+
+            # Najpierw przycisk usunięcia zadania
+            delete_button = ctk.CTkButton(task_frame, text="🗑", font=("Arial", 16), width=40, height=40,
+                                          fg_color="red", command=lambda t=task: self.delete_task(t))
+            delete_button.pack(side="right", padx=10)
+
+            # Potem przycisk ukończenia zadania (✔), z kolorem #262624
+            complete_button = ctk.CTkButton(task_frame, text="✔", font=("Arial", 16), width=40, height=40,
+                                            fg_color="#262624", command=lambda t=task: self.toggle_task_completed(t))
+            complete_button.pack(side="right", padx=10)
+
+    def toggle_task_completed(self, task):
+        """Przełącz status ukończenia zadania"""
+        self.task_manager.mark_task_completed(task)
+        self.update_task_list()  # Odświeżamy listę zadań
 
     def delete_task(self, task):
         # Przenosimy zadanie do usuniętych

@@ -16,7 +16,8 @@ class TaskManager:
             title TEXT,
             priority TEXT,
             category TEXT,
-            is_deleted BOOLEAN
+            is_deleted BOOLEAN,
+            is_completed BOOLEAN DEFAULT 0
         )
         """
         self.conn.execute(query)
@@ -27,12 +28,14 @@ class TaskManager:
         query = "SELECT * FROM Tasks"
         cursor = self.conn.execute(query)
         for row in cursor:
-            task = Task(title=row[1], priority=row[2], category=row[3])  # Tworzymy obiekt Task
-            task.id = row[0]  # Przypisujemy id z bazy danych
-            if row[4] == 0:  # Jeśli zadanie nie jest usunięte (is_deleted = 0)
-                self.tasks.append(task)
-            else:  # Jeśli zadanie jest oznaczone jako usunięte (is_deleted = 1)
+            task = Task(title=row[1], priority=row[2], category=row[3])
+            task.id = row[0]
+            task.is_deleted = row[4]  # Kolumna is_deleted
+            task.is_completed = row[5]  # Kolumna is_completed
+            if task.is_deleted:
                 self.deleted_tasks.append(task)
+            else:
+                self.tasks.append(task)
 
     def add_task(self, task):
         """Dodajemy zadanie do pamięci i bazy danych"""
@@ -73,3 +76,10 @@ class TaskManager:
     def get_deleted_tasks(self):
         """Pobieramy usunięte zadania"""
         return self.deleted_tasks
+
+    def mark_task_completed(self, task):
+        """Oznaczamy zadanie jako ukończone lub nieukończone"""
+        task.is_completed = not task.is_completed
+        query = "UPDATE Tasks SET is_completed = ? WHERE id = ?"
+        self.conn.execute(query, (task.is_completed, task.id))
+        self.conn.commit()
