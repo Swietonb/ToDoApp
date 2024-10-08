@@ -30,8 +30,8 @@ class AddTaskDialog(ctk.CTkToplevel):
         category_label = ctk.CTkLabel(self, text="Kategoria:", font=("Arial", 18))
         category_label.pack(pady=10)
 
-        self.category_var = ctk.StringVar(value="Inne")
-        category_menu = ctk.CTkComboBox(self, values=["Praca", "Osobiste", "Inne"], variable=self.category_var, width=300)
+        self.category_var = ctk.StringVar(value="Others")
+        category_menu = ctk.CTkComboBox(self, values=["Work", "Personal", "Others"], variable=self.category_var, width=300)
         category_menu.pack(pady=10)
 
         # Sekcja przycisków na dole (Dodaj i Anuluj) - rozdzielona, aby były przestronniejsze

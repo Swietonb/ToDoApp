@@ -38,8 +38,13 @@ class TaskManagerApp(ctk.CTk):
 
         # Kategoria filtrów
         ctk.CTkLabel(frame, text="Kategoria").grid(row=0, column=0, padx=5, pady=5, sticky="w")
-        self.category_menu = ctk.CTkComboBox(frame, values=["All", "Work", "Personal", "Others"],
-                                             variable=self.category_var, command=self.update_task_list)
+        self.category_menu = ctk.CTkComboBox(
+            frame,
+            values=["All", "Work", "Personal", "Others"],
+            variable=self.category_var,
+            command=lambda category: self.update_task_list(category)  # Przekazujemy wybraną kategorię
+        )
+
         self.category_menu.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
         # Przewijalna ramka na zadania
@@ -75,7 +80,12 @@ class TaskManagerApp(ctk.CTk):
         if dialog.restored_task:
             self.update_task_list()  # Aktualizujemy listę zadań po przywróceniu
 
-    def update_task_list(self):
+    def update_task_list(self, selected_category=None):
+        """Aktualizuje listę zadań na podstawie wybranej kategorii"""
+        # Jeśli przekazano kategorię, aktualizujemy zmienną self.category_var
+        if selected_category:
+            self.category_var.set(selected_category)
+
         # Czyścimy stare zadania
         for widget in self.task_scroll_frame.winfo_children():
             widget.destroy()
@@ -92,18 +102,23 @@ class TaskManagerApp(ctk.CTk):
             task_frame = ctk.CTkFrame(self.task_scroll_frame, corner_radius=10)
             task_frame.pack(fill="x", padx=10, pady=5, ipady=10)
 
+            # Prostokąt z literą priorytetu (pogrubiony tekst)
+            priority_label = ctk.CTkLabel(task_frame, text=task.priority[0].upper(),
+                                          font=("Arial", 16, "bold"),  # Pogrubiony tekst
+                                          width=40, height=40, fg_color="#262624", corner_radius=5, anchor="center")
+            priority_label.pack(side="left", padx=10)
+
             task_title = ctk.CTkLabel(task_frame, text=task.title, font=("Arial", 16))
             task_title.pack(side="left", padx=10)
 
-            # Najpierw przycisk usunięcia zadania
+            # Przycisk usunięcia zadania
             delete_button = ctk.CTkButton(task_frame, text="🗑", font=("Arial", 16), width=40, height=40,
                                           fg_color="red", command=lambda t=task: self.delete_task(t))
             delete_button.pack(side="right", padx=10)
 
-            # Potem przycisk ukończenia zadania (⬛ -> ✔), z kolorem #262624
+            # Przycisk ukończenia zadania (⬛ -> ✔), z kolorem #262624
             complete_button = ctk.CTkButton(task_frame, text="⬛", font=("Arial", 16), width=40, height=40,
-                                            fg_color="#262624",  # Kolor przycisku ukończenia
-                                            command=lambda t=task: self.toggle_task_completed(t))
+                                            fg_color="#262624", command=lambda t=task: self.toggle_task_completed(t))
             complete_button.pack(side="right", padx=10)
 
         # Dodajemy estetyczne oddzielenie ukończonych zadań
@@ -113,19 +128,24 @@ class TaskManagerApp(ctk.CTk):
 
         # Wyświetlamy ukończone zadania (z kolorem #30302f)
         for task in completed_tasks:
-            task_frame = ctk.CTkFrame(self.task_scroll_frame, corner_radius=10,
-                                      fg_color="#30302f")  # Kolor ukończonego zadania
+            task_frame = ctk.CTkFrame(self.task_scroll_frame, corner_radius=10, fg_color="#30302f")
             task_frame.pack(fill="x", padx=10, pady=5, ipady=10)
+
+            # Prostokąt z literą priorytetu dla ukończonych zadań (pogrubiony tekst)
+            priority_label = ctk.CTkLabel(task_frame, text=task.priority[0].upper(),
+                                          font=("Arial", 16, "bold"),  # Pogrubiony tekst
+                                          width=40, height=40, fg_color="#262624", corner_radius=5, anchor="center")
+            priority_label.pack(side="left", padx=10)
 
             task_title = ctk.CTkLabel(task_frame, text=task.title, font=("Arial", 16), text_color="gray")
             task_title.pack(side="left", padx=10)
 
-            # Najpierw przycisk usunięcia zadania
+            # Przycisk usunięcia zadania
             delete_button = ctk.CTkButton(task_frame, text="🗑", font=("Arial", 16), width=40, height=40,
                                           fg_color="red", command=lambda t=task: self.delete_task(t))
             delete_button.pack(side="right", padx=10)
 
-            # Potem przycisk ukończenia zadania (✔), z kolorem #262624
+            # Przycisk ukończenia zadania (✔), z kolorem #262624
             complete_button = ctk.CTkButton(task_frame, text="✔", font=("Arial", 16), width=40, height=40,
                                             fg_color="#262624", command=lambda t=task: self.toggle_task_completed(t))
             complete_button.pack(side="right", padx=10)

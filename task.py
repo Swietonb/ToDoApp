@@ -4,7 +4,7 @@ class Task:
         self.priority = priority
         self.category = category
         self.is_deleted = False
-        self.is_completed = False  # Domyślnie zadanie nie jest ukończone
+        self.is_completed = False
 
     def toggle_completed(self):
         """Przełącz status ukończenia zadania"""

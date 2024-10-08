@@ -38,13 +38,12 @@ class TaskManager:
                 self.tasks.append(task)
 
     def add_task(self, task):
-        """Dodajemy zadanie do pamięci i bazy danych"""
+        """Dodaj zadanie do pamięci i bazy danych"""
         self.tasks.append(task)
-        query = "INSERT INTO Tasks (title, priority, category, is_deleted) VALUES (?, ?, ?, 0)"
+        query = "INSERT INTO Tasks (title, priority, category, is_deleted, is_completed) VALUES (?, ?, ?, 0, 0)"
         cursor = self.conn.execute(query, (task.title, task.priority, task.category))
         self.conn.commit()
-        # Po dodaniu zadania, przypisujemy wygenerowane id do zadania
-        task.id = cursor.lastrowid  # Pobieramy ostatni wygenerowany id z bazy danych
+        task.id = cursor.lastrowid  # Pobieramy wygenerowane id zadania
 
     def remove_task(self, task):
         """Oznaczamy zadanie jako usunięte"""
