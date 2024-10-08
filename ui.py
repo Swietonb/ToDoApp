@@ -1,0 +1,97 @@
+import customtkinter as ctk
+from task_manager import TaskManager
+from add_task_dialog import AddTaskDialog
+from deleted_tasks_dialog import DeletedTasksDialog
+
+
+class TaskManagerApp(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("Task Manager")
+        self.geometry("1200x800")  # Wymiary okna
+
+        self.task_manager = TaskManager()  # Używamy TaskManager do zarządzania zadaniami
+
+        self.category_var = ctk.StringVar(value="All")
+        self.create_widgets()
+
+        # Ustawienie proporcjonalnego skalowania
+        self.grid_rowconfigure(1, weight=10)  # Skaluje się w pionie, zadania zajmują większą część okna
+        self.grid_columnconfigure(0, weight=1)  # Skaluje się w poziomie
+
+    def create_widgets(self):
+        # Główna ramka
+        frame = ctk.CTkFrame(self)
+        frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+        # Ustawienie proporcji dla kolumn i wierszy ramki
+        frame.grid_rowconfigure(1, weight=10)
+        frame.grid_rowconfigure(2, weight=1)
+        frame.grid_columnconfigure(1, weight=1)
+
+        # Kategoria filtrów
+        ctk.CTkLabel(frame, text="Kategoria").grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        self.category_menu = ctk.CTkComboBox(frame, values=["All", "Work", "Personal", "Others"],
+                                             variable=self.category_var, command=self.update_task_list)
+        self.category_menu.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+
+        # Przewijalna ramka na zadania
+        self.task_scroll_frame = ctk.CTkScrollableFrame(frame, height=600)
+        self.task_scroll_frame.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")
+
+        # Przycisk dodawania zadań
+        add_task_btn = ctk.CTkButton(frame, text="+", font=("Arial", 24), width=50, height=50, command=self.open_add_task_dialog)
+        add_task_btn.grid(row=0, column=2, padx=5, pady=5, sticky="e")
+
+        # Przycisk Kosz
+        delete_btn = ctk.CTkButton(frame, text="🗑", font=("Arial", 24), width=50, height=50, command=self.open_deleted_tasks_dialog)
+        delete_btn.grid(row=2, column=0, padx=5, pady=5, sticky="sw")
+
+    def open_add_task_dialog(self):
+        # Otwieramy dialog do dodawania zadań
+        dialog = AddTaskDialog(self)
+        dialog.lift()
+        dialog.grab_set()
+        self.wait_window(dialog)
+
+        if dialog.task:  # Jeśli dodano zadanie, zapisujemy je
+            self.task_manager.add_task(dialog.task)
+            self.update_task_list()
+
+    def open_deleted_tasks_dialog(self):
+        # Otwieramy dialog do usuniętych zadań
+        dialog = DeletedTasksDialog(self, self.task_manager.get_deleted_tasks())
+        dialog.lift()
+        dialog.grab_set()
+        self.wait_window(dialog)
+
+        if dialog.restored_task:
+            self.task_manager.restore_task(dialog.restored_task)
+            self.update_task_list()
+
+    def update_task_list(self):
+        # Czyścimy stare zadania
+        for widget in self.task_scroll_frame.winfo_children():
+            widget.destroy()
+
+        # Pobieramy zadania według kategorii
+        tasks = self.task_manager.get_tasks_by_category(self.category_var.get())
+
+        # Wyświetlamy zadania
+        for task in tasks:
+            task_frame = ctk.CTkFrame(self.task_scroll_frame, corner_radius=10)
+            task_frame.pack(fill="x", padx=10, pady=5, ipady=10)
+
+            # Wyświetlamy tytuł zadania
+            task_title = ctk.CTkLabel(task_frame, text=task.title, font=("Arial", 16))
+            task_title.pack(side="left", padx=10)
+
+            # Przycisk usunięcia zadania
+            delete_button = ctk.CTkButton(task_frame, text="🗑", font=("Arial", 16), width=40, height=40,
+                                          command=lambda t=task: self.delete_task(t))
+            delete_button.pack(side="right", padx=10)
+
+    def delete_task(self, task):
+        # Przenosimy zadanie do usuniętych
+        self.task_manager.remove_task(task)
+        self.update_task_list()
