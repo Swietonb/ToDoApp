@@ -13,7 +13,7 @@ class TaskManagerApp(ctk.CTk):
         # Inicjalizacja TaskManager
         self.task_manager = TaskManager()
 
-        # Ładujemy zadania z bazy danych
+        # Ładowanie zadań z bazy danych
         self.task_manager.load_tasks_from_db()
 
         self.category_var = ctk.StringVar(value="All")
@@ -36,7 +36,7 @@ class TaskManagerApp(ctk.CTk):
         frame.grid_rowconfigure(2, weight=1)
         frame.grid_columnconfigure(1, weight=1)
 
-        # Kategoria filtrów
+        # Filtrowanie po kategorii
         ctk.CTkLabel(frame, text="Kategoria").grid(row=0, column=0, padx=5, pady=5, sticky="w")
         self.category_menu = ctk.CTkComboBox(
             frame,
@@ -60,18 +60,16 @@ class TaskManagerApp(ctk.CTk):
         delete_btn.grid(row=2, column=0, padx=5, pady=5, sticky="sw")
 
     def open_add_task_dialog(self):
-        # Otwieramy dialog do dodawania zadań
         dialog = AddTaskDialog(self)
         dialog.lift()
         dialog.grab_set()
         self.wait_window(dialog)
 
-        if dialog.task:  # Jeśli dodano zadanie
+        if dialog.task:
             self.task_manager.add_task(dialog.task)  # Dodajemy zadanie przez TaskManager
             self.update_task_list()
 
     def open_deleted_tasks_dialog(self):
-        # Otwieramy dialog do usuniętych zadań
         dialog = DeletedTasksDialog(self, self.task_manager.get_deleted_tasks())
         dialog.lift()
         dialog.grab_set()
@@ -81,30 +79,31 @@ class TaskManagerApp(ctk.CTk):
             self.update_task_list()  # Aktualizujemy listę zadań po przywróceniu
 
     def update_task_list(self, selected_category=None):
-        """Aktualizuje listę zadań na podstawie wybranej kategorii"""
+        """Aktualizuje listę zadań
+        """
         # Jeśli przekazano kategorię, aktualizujemy zmienną self.category_var
         if selected_category:
             self.category_var.set(selected_category)
 
-        # Czyścimy stare zadania
+        # Czyszczenie starych zadań
         for widget in self.task_scroll_frame.winfo_children():
             widget.destroy()
 
-        # Pobieramy zadania według kategorii
+        # Pobieranie zadań po kategorii
         tasks = self.task_manager.get_tasks_by_category(self.category_var.get())
 
-        # Oddzielamy zadania ukończone od nieukończonych
+        # Oddzielanie zadań ukończonych od nieukończonych
         not_completed_tasks = [task for task in tasks if not task.is_completed]
         completed_tasks = [task for task in tasks if task.is_completed]
 
-        # Wyświetlamy niewykonane zadania
+        # Wyświetlanie niewykonanych zadań
         for task in not_completed_tasks:
             task_frame = ctk.CTkFrame(self.task_scroll_frame, corner_radius=10)
             task_frame.pack(fill="x", padx=10, pady=5, ipady=10)
 
-            # Prostokąt z literą priorytetu (pogrubiony tekst)
+            # Prostokąt z literą priorytetu
             priority_label = ctk.CTkLabel(task_frame, text=task.priority[0].upper(),
-                                          font=("Arial", 16, "bold"),  # Pogrubiony tekst
+                                          font=("Arial", 16, "bold"),
                                           width=40, height=40, fg_color="#262624", corner_radius=5, anchor="center")
             priority_label.pack(side="left", padx=10)
 
@@ -116,24 +115,23 @@ class TaskManagerApp(ctk.CTk):
                                           fg_color="red", command=lambda t=task: self.delete_task(t))
             delete_button.pack(side="right", padx=10)
 
-            # Przycisk ukończenia zadania (⬛ -> ✔), z kolorem #262624
+            # Przycisk ukończenia zadania (⬛ -> ✔)
             complete_button = ctk.CTkButton(task_frame, text="⬛", font=("Arial", 16), width=40, height=40,
                                             fg_color="#262624", command=lambda t=task: self.toggle_task_completed(t))
             complete_button.pack(side="right", padx=10)
 
-        # Dodajemy estetyczne oddzielenie ukończonych zadań
+        # Oddzielenie ukończonych zadań
         if completed_tasks:
             separator = ctk.CTkLabel(self.task_scroll_frame, text="--- Ukończone zadania ---", font=("Arial", 12))
             separator.pack(pady=10)
 
-        # Wyświetlamy ukończone zadania (z kolorem #30302f)
+        # Wyświetlanie ukończonych zadań
         for task in completed_tasks:
             task_frame = ctk.CTkFrame(self.task_scroll_frame, corner_radius=10, fg_color="#30302f")
             task_frame.pack(fill="x", padx=10, pady=5, ipady=10)
 
-            # Prostokąt z literą priorytetu dla ukończonych zadań (pogrubiony tekst)
             priority_label = ctk.CTkLabel(task_frame, text=task.priority[0].upper(),
-                                          font=("Arial", 16, "bold"),  # Pogrubiony tekst
+                                          font=("Arial", 16, "bold"),
                                           width=40, height=40, fg_color="#262624", corner_radius=5, anchor="center")
             priority_label.pack(side="left", padx=10)
 
@@ -145,7 +143,7 @@ class TaskManagerApp(ctk.CTk):
                                           fg_color="red", command=lambda t=task: self.delete_task(t))
             delete_button.pack(side="right", padx=10)
 
-            # Przycisk ukończenia zadania (✔), z kolorem #262624
+            # Przycisk ukończenia zadania (✔)
             complete_button = ctk.CTkButton(task_frame, text="✔", font=("Arial", 16), width=40, height=40,
                                             fg_color="#262624", command=lambda t=task: self.toggle_task_completed(t))
             complete_button.pack(side="right", padx=10)
@@ -156,6 +154,5 @@ class TaskManagerApp(ctk.CTk):
         self.update_task_list()  # Odświeżamy listę zadań
 
     def delete_task(self, task):
-        # Przenosimy zadanie do usuniętych
         self.task_manager.remove_task(task)
         self.update_task_list()

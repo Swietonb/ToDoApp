@@ -24,11 +24,12 @@ class DeletedTasksDialog(ctk.CTkToplevel):
 
     def update_deleted_tasks(self):
         """Odświeżenie listy usuniętych zadań"""
-        # Czyścimy ramkę przewijalną
+
+        # Czyszczenie ramki
         for widget in self.scroll_frame.winfo_children():
             widget.destroy()
 
-        # Wyświetlamy usunięte zadania
+        # Wyświetlanie usuniętych zadań
         for task in self.deleted_tasks:
             task_frame = ctk.CTkFrame(self.scroll_frame, corner_radius=10)
             task_frame.pack(fill="x", padx=10, pady=5, ipady=10)
@@ -36,7 +37,7 @@ class DeletedTasksDialog(ctk.CTkToplevel):
             task_title = ctk.CTkLabel(task_frame, text=task.title, font=("Arial", 16))
             task_title.pack(side="left", padx=10)
 
-            # Przycisk "Usuń na stałe" (zamieniamy kolejnością z przyciskiem "Przywróć")
+            # Przycisk "Usuń na stałe"
             delete_button = ctk.CTkButton(task_frame, text="🗑", font=("Arial", 16), width=80, height=40,
                                           fg_color="red", command=lambda t=task: self.confirm_delete_task(t))
             delete_button.pack(side="right", padx=10)
@@ -49,12 +50,12 @@ class DeletedTasksDialog(ctk.CTkToplevel):
     def restore_task(self, task):
         """Przywracamy zadanie i odświeżamy listę usuniętych zadań"""
         self.restored_task = task
-        self.parent.task_manager.restore_task(task)  # Przywracamy zadanie w task_manager
+        self.parent.task_manager.restore_task(task)  # Przywracanie zadania w task_manager
 
-        # Usuwamy zadanie z listy usuniętych na podstawie jego id
+        # Usuwanie zadania z listy usuniętych na podstawie jego id
         self.deleted_tasks = [t for t in self.deleted_tasks if t.id != task.id]
 
-        self.update_deleted_tasks()  # Odświeżamy widok po przywróceniu zadania
+        self.update_deleted_tasks()  # Odświeżanie widoku po przywróceniu zadania
 
     def confirm_delete_task(self, task):
         """Wywołanie dialogu potwierdzenia usunięcia zadania"""
@@ -66,4 +67,4 @@ class DeletedTasksDialog(ctk.CTkToplevel):
         query = "DELETE FROM Tasks WHERE id = ?"
         self.parent.task_manager.conn.execute(query, (task.id,))
         self.parent.task_manager.conn.commit()
-        self.update_deleted_tasks()  # Odświeżamy listę po usunięciu zadania
+        self.update_deleted_tasks()  # Odświeżanie listy po usunięciu zadania

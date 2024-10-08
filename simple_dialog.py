@@ -1,5 +1,6 @@
 import customtkinter as ctk
 
+
 class SimpleDialog(ctk.CTkToplevel):
     def __init__(self, parent, message, confirm_callback, max_line_length=50):
         super().__init__(parent)
@@ -8,7 +9,7 @@ class SimpleDialog(ctk.CTkToplevel):
         self.parent = parent
         self.confirm_callback = confirm_callback
 
-        # Ustawiamy okno na wierzchu
+        # Okno na wierzchu
         self.attributes("-topmost", True)
 
         # Sprawdzenie długości tekstu i dzielenie na dwie linie, jeśli za długi

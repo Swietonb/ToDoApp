@@ -56,7 +56,6 @@ class TaskManager:
 
     def restore_task(self, task):
         """Przywracamy usunięte zadanie"""
-        # Znajdujemy zadanie w usuniętych po id
         task_to_restore = next((t for t in self.deleted_tasks if t.id == task.id), None)
         if task_to_restore:
             self.deleted_tasks.remove(task_to_restore)  # Usuwamy zadanie z listy usuniętych

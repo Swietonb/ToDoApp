@@ -6,15 +6,14 @@ class AddTaskDialog(ctk.CTkToplevel):
         super().__init__(parent)
         self.parent = parent  # Referencja do głównego okna
         self.title("Dodaj nowe zadanie")
-        self.geometry("500x400")  # Zwiększenie rozmiaru okna
+        self.geometry("500x400")  # Rozmiar okna
 
-        self.task = None  # Na początku brak zadania
+        self.task = None
 
         # Etykieta i pole tekstowe dla tytułu zadania
         task_title_label = ctk.CTkLabel(self, text="Tytuł zadania:", font=("Arial", 18))
         task_title_label.pack(pady=10)
 
-        # Zwiększamy szerokość pola tekstowego
         self.task_title_entry = ctk.CTkEntry(self, font=("Arial", 16), width=300)
         self.task_title_entry.pack(pady=10)
 
@@ -34,7 +33,7 @@ class AddTaskDialog(ctk.CTkToplevel):
         category_menu = ctk.CTkComboBox(self, values=["Work", "Personal", "Others"], variable=self.category_var, width=300)
         category_menu.pack(pady=10)
 
-        # Sekcja przycisków na dole (Dodaj i Anuluj) - rozdzielona, aby były przestronniejsze
+        # Sekcja przycisków na dole (Dodaj i Anuluj)
         buttons_frame = ctk.CTkFrame(self)
         buttons_frame.pack(pady=20)
 
@@ -52,5 +51,5 @@ class AddTaskDialog(ctk.CTkToplevel):
 
         # Tworzymy nowe zadanie na podstawie wprowadzonych danych
         task = Task(title=task_title, priority=self.priority_var.get(), category=self.category_var.get())
-        self.task = task  # Zapisujemy utworzone zadanie
-        self.destroy()  # Zamyka okno dialogowe
+        self.task = task  # Zapisywanie utworzonego zadania
+        self.destroy()
