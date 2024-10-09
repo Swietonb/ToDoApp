@@ -10,12 +10,15 @@ class TaskManager:
 
     def create_table(self):
         """Tworzymy tabelę, jeśli jeszcze nie istnieje"""
+        #self.conn.execute("DROP TABLE IF EXISTS Tasks")
         query = """
         CREATE TABLE IF NOT EXISTS Tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT,
             priority TEXT,
             category TEXT,
+            due_date TEXT,
+            due_time TEXT,
             is_deleted BOOLEAN,
             is_completed BOOLEAN DEFAULT 0
         )
@@ -28,10 +31,10 @@ class TaskManager:
         query = "SELECT * FROM Tasks"
         cursor = self.conn.execute(query)
         for row in cursor:
-            task = Task(title=row[1], priority=row[2], category=row[3])
+            task = Task(title=row[1], priority=row[2], category=row[3], due_date=row[4], due_time=row[5])
             task.id = row[0]
-            task.is_deleted = row[4]  # Kolumna is_deleted
-            task.is_completed = row[5]  # Kolumna is_completed
+            task.is_deleted = row[6]  # Kolumna is_deleted
+            task.is_completed = row[7]  # Kolumna is_completed
             if task.is_deleted:
                 self.deleted_tasks.append(task)
             else:
@@ -40,8 +43,8 @@ class TaskManager:
     def add_task(self, task):
         """Dodaj zadanie do pamięci i bazy danych"""
         self.tasks.append(task)
-        query = "INSERT INTO Tasks (title, priority, category, is_deleted, is_completed) VALUES (?, ?, ?, 0, 0)"
-        cursor = self.conn.execute(query, (task.title, task.priority, task.category))
+        query = "INSERT INTO Tasks (title, priority, category, due_date, due_time, is_deleted, is_completed) VALUES (?, ?, ?, ?, ?, 0, 0)"
+        cursor = self.conn.execute(query, (task.title, task.priority, task.category, task.due_date, task.due_time))
         self.conn.commit()
         task.id = cursor.lastrowid  # Pobieramy wygenerowane id zadania
 

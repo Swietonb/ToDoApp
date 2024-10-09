@@ -47,6 +47,18 @@ class DeletedTasksDialog(ctk.CTkToplevel):
                                            command=lambda t=task: self.restore_task(t))
             restore_button.pack(side="right", padx=10)
 
+            # Dodajemy wyświetlanie daty
+            if task.due_date and task.due_time:
+                due_date_text = f"{task.due_date}, {task.due_time}"
+            elif task.due_date:
+                due_date_text = task.due_date
+            else:
+                due_date_text = "Bezterminowe"
+
+            date_label = ctk.CTkLabel(task_frame, text=due_date_text,
+                                      font=("Arial", 16), width=120, height=40, fg_color="#262624", corner_radius=5)
+            date_label.pack(side="right", padx=10)
+
     def restore_task(self, task):
         """Przywracamy zadanie i odświeżamy listę usuniętych zadań"""
         self.restored_task = task
