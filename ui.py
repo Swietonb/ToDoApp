@@ -161,7 +161,7 @@ class TaskManagerApp(ctk.CTk):
 
         # Oddzielenie ukończonych zadań
         if completed_tasks:
-            separator = ctk.CTkLabel(self.task_scroll_frame, text="--- Ukończone zadania ---", font=("Arial", 12))
+            separator = ctk.CTkLabel(self.task_scroll_frame, text="--- Ukończone zadania ---", font=("Helvetica", 20, "bold"))
             separator.pack(pady=10)
 
         # Wyświetlanie ukończonych zadań
